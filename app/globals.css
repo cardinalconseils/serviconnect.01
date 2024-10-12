@@ -1,6 +1,10 @@
+/* eslint-disable */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+/* eslint-enable */
+
+/* Your custom styles can go here */
 
 :root {
   --foreground-rgb: 0, 0, 0;
