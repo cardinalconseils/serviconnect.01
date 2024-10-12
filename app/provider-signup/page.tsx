@@ -5,6 +5,7 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { setDoc, doc } from 'firebase/firestore';
 import { auth, db } from '../../lib/firebase';
 import { useRouter } from 'next/navigation';
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 
 export default function ProviderSignup() {
   const [formData, setFormData] = useState({
@@ -28,6 +29,17 @@ export default function ProviderSignup() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!executeRecaptcha) {
+      console.log('Execute recaptcha not yet available');
+      return;
+    }
+    
+    const token = await executeRecaptcha('provider_signup');
+    if (!token) {
+      setError('reCAPTCHA verification failed. Please try again.');
+      return;
+    }
+
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
       const user = userCredential.user;
@@ -47,6 +59,8 @@ export default function ProviderSignup() {
       console.error(error);
     }
   };
+
+  const { executeRecaptcha } = useGoogleReCaptcha();
 
   return (
     <div className="max-w-md mx-auto">

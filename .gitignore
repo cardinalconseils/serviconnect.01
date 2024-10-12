@@ -70,3 +70,5 @@ node_modules/
 
 # .gitignore
 out/
+.env.local
+.next/

@@ -7,6 +7,7 @@ import { auth, db } from '../../lib/firebase';
 import { useRouter } from 'next/navigation';
 import { validateEmail, validatePhone, validatePassword } from '../../utils/validation';
 import Loading from '../../components/Loading';
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 
 export default function UserSignup() {
   const [formData, setFormData] = useState({
@@ -65,12 +66,26 @@ export default function UserSignup() {
     return isValid;
   };
 
+  const { executeRecaptcha } = useGoogleReCaptcha();
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!validateForm()) return;
 
+    if (!executeRecaptcha) {
+      console.log('Execute recaptcha not yet available');
+      return;
+    }
+
     setIsSubmitting(true);
+
     try {
+      const token = await executeRecaptcha('user_signup');
+      if (!token) {
+        alert('reCAPTCHA verification failed. Please try again.');
+        return;
+      }
+
       const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
       const user = userCredential.user;
 
